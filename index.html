@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Projects</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-8">
+    <header class="max-w-4xl mx-auto mb-10 text-center">
+        <h1 class="text-4xl font-bold text-gray-800">Project Gallery</h1>
+        <p class="text-gray-600 mt-2">GitHubから自動取得したプロジェクト一覧</p>
+    </header>
+
+    <main id="repo-list" class="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        </main>
+
+    <script>
+        const GITHUB_USERNAME = 'YOUR_GITHUB_ID'; // あなたのIDに変更
+
+        async function fetchRepos() {
+            const response = await fetch(`https://api.github.com/users/${GITHUB_USERNAME}/repos?sort=updated`);
+            const repos = await response.json();
+            const container = document.getElementById('repo-list');
+
+            repos.filter(repo => !repo.fork).forEach(repo => {
+                const card = `
+                    <div class="bg-white p-6 rounded-lg shadow-md hover:shadow-xl transition-shadow">
+                        <h2 class="text-xl font-semibold text-blue-600 mb-2">
+                            <a href="${repo.html_url}" target="_blank">${repo.name}</a>
+                        </h2>
+                        <p class="text-gray-600 text-sm mb-4">${repo.description || '説明なし'}</p>
+                        <div class="flex flex-wrap gap-2 mb-4">
+                            ${repo.topics.map(topic => `<span class="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded">${topic}</span>`).join('')}
+                        </div>
+                        <div class="flex justify-between items-center text-xs text-gray-400">
+                            <span>⭐ ${repo.stargazers_count}</span>
+                            <a href="${repo.homepage || '#'}" target="_blank" class="text-green-500 font-bold ${repo.homepage ? '' : 'hidden'}">Live Demo →</a>
+                        </div>
+                    </div>
+                `;
+                container.innerHTML += card;
+            });
+        }
+        fetchRepos();
+    </script>
+</body>
+</html>
